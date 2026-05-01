@@ -56,5 +56,5 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log(`Hex clicked: q=${hex.q}, r=${hex.r}`);
     });
 
-  console.log(`Grid rendered. Use mouse wheel, click + drag, or pinch gestures to zoom and pan!`);
+  // console.log(`Grid rendered. Use mouse wheel, click + drag, or pinch gestures to zoom and pan!`);
 });
