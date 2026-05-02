@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // 1. Configure the grid
   const HexClass = honeycomb.defineHex({ dimensions: 30, orientation: "flat" });
   const grid = new honeycomb.Grid(HexClass, honeycomb.rectangle({ width: 30, height: 20 }));
+  // console.debug(grid);
 
   const width = 500;
   const height = 500;
@@ -47,17 +48,17 @@ document.addEventListener("DOMContentLoaded", () => {
     .append("polygon")
     .attr("class", "hex-tile")
     .attr("points", (hex) => hex.corners.map(c => `${c.x},${c.y}`).join(" "))
-    .style("fill", "#555555")
+    .style("fill", "#000000")
     .style("stroke", "#aaaaaa")
-    .style("stroke-width", "1px")
+    .style("stroke-width", "1.5px")
     .on("click", function (event, hex) {
       const currentFill = d3.select(this).style("fill");
       const newFill = brushColor;
       d3.select(this).style("fill", newFill);
-      console.log(`Hex clicked: q=${hex.q}, r=${hex.r}`);
+      // console.debug(`Hex clicked: q=${hex.q}, r=${hex.r}`);
     });
 
-  // console.log(`Grid rendered. Use mouse wheel, click + drag, or pinch gestures to zoom and pan!`);
+  // console.debug(`Grid rendered. Use mouse wheel, click + drag, or pinch gestures to zoom and pan!`);
 
   // color button
 
@@ -74,12 +75,20 @@ document.addEventListener("DOMContentLoaded", () => {
     default: brushColor, // Default color
 
     swatches: [
-      '#2d5a27', // Dark Forest
-      '#4CAF50', // Grass
-      '#2196F3', // Water
-      '#A89F94', // Waste
-      '#795548', // Mountains
-      '#FFEB3B', // Desert
+      '#1b5d12', // dark green
+      '#7dc745', // green
+      '#aaee97', // light green
+      '#1618b5', // dark blue
+      '#2196F3', // blue
+      '#63ddff', // light blue
+      '#4a2c22', // dark brown
+      '#794930', // brown
+      '#af916c', // light brown
+      '#444444', // dark gray
+      '#888888', // gray
+      '#cccccc', // light gray
+      '#ca3a21', // red
+      '#ffc800', // yellow
     ],
 
     components: {
@@ -93,18 +102,18 @@ document.addEventListener("DOMContentLoaded", () => {
         hex: false,
         input: false,
         clear: false,
-        save: true
+        save: false
       }
     }
   });
 
   // Example of how to use the selected color
-  colorPicker.on('save', (color, instance) => {
+  colorPicker.on('change', (color, instance) => {
     brushColor = color.toHEXA().toString();
     btnColor.style.color = brushColor;
-    console.log('Selected color for painting:', brushColor);
+    // console.debug('Selected color for painting:', brushColor);
     // You can now set a global variable like 'currentBrushColor' to this value
-    instance.hide();
+    // instance.hide();
   });
 
 });

@@ -10,6 +10,6 @@ body {
   transition: fill 0.20s ease, stroke 0.20s ease;
 }
 
-.hex-tile:hover {
+/* .hex-tile:hover {
   filter: brightness(0.75);
-}
+} */
