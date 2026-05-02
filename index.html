@@ -19,29 +19,34 @@
 
   <div class="container-fluid vh-100 m-0 p-0 overflow-hidden">
 
-    <header class="d-flex flex-nowrap overflow-x-auto position-fixed top-0 start-0 m-0 p-0">
+    <header id="tool-header" class="d-flex flex-row flex-nowrap overflow-x-auto position-fixed top-0 start-0 m-0 p-0">
+      
       <button class="btn btn-dark border-2 border-secondary rounded-3 px-2 py-0 ms-2 mt-2" type="button"
-        data-bs-toggle="collapse" data-bs-target="#toolTray">
+        data-bs-toggle="collapse" data-bs-target="#tool-tray">
         <i class="bi bi-three-dots fs-2"></i>
       </button>
 
-      <div class="collapse collapse-horizontal" id="toolTray">
+      <div class="collapse collapse-horizontal" id="tool-tray">
 
-        <button id="btn-color" class="btn btn-dark border-2 border-secondary rounded-3 px-2 py-0 ms-2 mt-2"
-          type="button" data-bs-toggle="collapse" data-bs-target="#colorTray">
-          <i class="bi bi-droplet-fill fs-2"></i>
-        </button>
+        <div class="d-flex flex-row flex-nowrap">
+          
+
+          <button id="btn-color" class="btn btn-dark border-2 border-secondary rounded-3 px-2 py-0 ms-2 mt-2">
+            <i class="bi bi-droplet-fill fs-2"></i>
+          </button>
+          
+          <button id="btn-eyedropper" class="btn btn-dark border-2 border-secondary rounded-3 px-2 py-0 ms-2 mt-2">
+            <i class="bi bi-eyedropper fs-2"></i>
+          </button>
+          
+          <!-- <button id="btn-eraser" class="btn btn-dark border-2 border-secondary rounded-3 px-2 py-0 ms-2 mt-2">
+            <i class="bi bi-eraser-fill fs-2"></i>
+          </button> -->
+
+        </div> 
 
       </div>
 
-      <!-- <div class="collapse collapse-horizontal" id="colorTray">
-
-        <button id="btn-color" class="btn btn-dark border-2 border-secondary rounded-3 px-2 py-0 ms-2 mt-2"
-          type="button" data-bs-toggle="collapse" data-bs-target="#colorTray">
-          <i class="bi bi-circle-fill fs-2"></i>
-        </button>
-
-      </div> -->
     </header>
 
     <div id="app" class="bg-dark h-100 v-100">

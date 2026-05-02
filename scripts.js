@@ -52,9 +52,19 @@ document.addEventListener("DOMContentLoaded", () => {
     .style("stroke", "#aaaaaa")
     .style("stroke-width", "1.5px")
     .on("click", function (event, hex) {
-      const currentFill = d3.select(this).style("fill");
-      const newFill = brushColor;
-      d3.select(this).style("fill", newFill);
+
+      if (tool === 'eyedropper') {
+
+        const currentFill = d3.select(this).style("fill");
+        brushColor = currentFill;
+        tool = 'brush';
+        toggleButton('btn-eyedropper');
+        
+      } else {
+
+        d3.select(this).style("fill", brushColor);
+      }
+      
       // console.debug(`Hex clicked: q=${hex.q}, r=${hex.r}`);
     });
 
@@ -116,4 +126,34 @@ document.addEventListener("DOMContentLoaded", () => {
     // instance.hide();
   });
 
+  // eyedropper
+
+  let tool = 'brush';
+
+  const btnEyedropper = document.getElementById('btn-eyedropper');
+  btnEyedropper.addEventListener('click', (e) => {
+    
+    tool = 'eyedropper';
+    toggleButton('btn-eyedropper');
+
+  });
+
+  // eraser
+
+  // const btnEraser = document.getElementById('btn-eraser');
+  // btnEraser.addEventListener('click', (e) => {
+    
+  //   brushColor = '#000000';
+    
+  // });
+
 });
+
+function toggleButton(buttonId) {
+
+  const button = document.getElementById(buttonId);
+  button.classList.toggle("btn-dark");
+  button.classList.toggle("btn-secondary");
+  button.classList.toggle("border-secondary");
+  button.classList.toggle("border-light");
+}
