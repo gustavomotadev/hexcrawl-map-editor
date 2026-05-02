@@ -10,6 +10,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const grid = new honeycomb.Grid(HexClass, honeycomb.rectangle({ width: 30, height: 20 }));
   // console.debug(grid);
 
+  grid.forEach(hex => {
+    hex.fillColor = "#000000"; // Set a default starting color
+  });
+
+  quickLoad(grid);
+
   const width = 500;
   const height = 500;
 
@@ -48,23 +54,28 @@ document.addEventListener("DOMContentLoaded", () => {
     .append("polygon")
     .attr("class", "hex-tile")
     .attr("points", (hex) => hex.corners.map(c => `${c.x},${c.y}`).join(" "))
-    .style("fill", "#000000")
+    .style("fill", (hex) => hex.fillColor)
     .style("stroke", "#aaaaaa")
     .style("stroke-width", "1.5px")
     .on("click", function (event, hex) {
 
       if (tool === 'eyedropper') {
 
-        const currentFill = d3.select(this).style("fill");
-        brushColor = currentFill;
+        // const currentFill = d3.select(this).style("fill");
+        brushColor = hex.fillColor;
         tool = 'brush';
         toggleButton('btn-eyedropper');
-        
+        colorPicker.setColor(brushColor);
+        btnColor.style.color = brushColor;
+
       } else {
 
+        hex.fillColor = brushColor;
         d3.select(this).style("fill", brushColor);
+
+        quickSave(grid);
       }
-      
+
       // console.debug(`Hex clicked: q=${hex.q}, r=${hex.r}`);
     });
 
@@ -132,7 +143,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const btnEyedropper = document.getElementById('btn-eyedropper');
   btnEyedropper.addEventListener('click', (e) => {
-    
+
     tool = 'eyedropper';
     toggleButton('btn-eyedropper');
 
@@ -142,9 +153,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // const btnEraser = document.getElementById('btn-eraser');
   // btnEraser.addEventListener('click', (e) => {
-    
+
   //   brushColor = '#000000';
-    
+
   // });
 
 });
@@ -156,4 +167,53 @@ function toggleButton(buttonId) {
   button.classList.toggle("btn-secondary");
   button.classList.toggle("border-secondary");
   button.classList.toggle("border-light");
+}
+
+function quickSave(grid) {
+
+  const fullMapData = Array.from(grid).map(hex => ({ q: hex.q, r: hex.r, color: hex.fillColor }));
+
+  const filteredMapData = fullMapData.filter((hex) => (hex.color !== "#000000"));
+
+  let saveData = { palette: [], hexes: {} };
+
+  filteredMapData.forEach(hex => {
+
+    if (!saveData.palette.includes(hex.color)) {
+      saveData.palette.push(hex.color);
+    }
+
+    saveData.hexes[`${hex.q},${hex.r}`] = saveData.palette.indexOf(hex.color);
+  });
+
+  const saveDataString = JSON.stringify(saveData);
+
+  localStorage.setItem('quickSaveData', saveDataString);
+}
+
+function quickLoad(grid) {
+
+  const quickSaveJSON = localStorage.getItem('quickSaveData'); 
+
+  if (!quickSaveJSON) {
+    return false;
+  }
+
+  const quickSaveObject = JSON.parse(quickSaveJSON);
+
+  for (const [qr, colorIndex] of Object.entries(quickSaveObject.hexes)) {
+
+    const qrArray = qr.split(',');
+    // console.debug(qrArray);
+    const q = Number(qrArray[0]);
+    const r = Number(qrArray[1]);
+    const color = quickSaveObject.palette[colorIndex];
+
+    const targetHex = grid.getHex([q, r]);
+
+    // console.debug(color);
+    targetHex.fillColor = color;
+  }
+
+  return true;
 }
