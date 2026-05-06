@@ -38,7 +38,7 @@ function createGrid(hexWidth, hexHeight, hexOrientation, hexDimension=30, hexFil
 
   grid.forEach(hex => {
     hex.fillColor = hexFillColor; // Set a default fill color
-    hex.strokeColor = hexStrokeColor; // Set a default stroke color
+    // hex.strokeColor = hexStrokeColor; // Set a default stroke color
   });
 
   return grid
@@ -46,20 +46,22 @@ function createGrid(hexWidth, hexHeight, hexOrientation, hexDimension=30, hexFil
 
 function d3Setup() {
 
+  // These establish the internal coordinate system (the logical units) of your drawing
+  // They don't represent actual screen pixels yet, but rather the "world size" of your map's design space
   const width = 500;
   const height = 500;
 
   // Setup the SVG Canvas via D3
-  const svg = d3.select("#app")
-    .append("svg")
-    .attr("width", "100%")
-    .attr("height", "100%")
-    .attr("viewBox", `0 0 ${width} ${height}`)
-    .attr("preserveAspectRatio", "xMidYMid meet");
+  const svg = d3.select("#app") // select html element with app id
+    .append("svg") // append an svg inside this element
+    .attr("width", "100%") // svg will stretch and fill container
+    .attr("height", "100%") // svg will stretch and fill container
+    .attr("viewBox", `0 0 ${width} ${height}`) // If you changed the line to .attr("viewBox", "100 100 250 250"), you would effectively be zooming in. You are telling the browser: "Take the area starting at coordinate (100, 100) with a span of 250 units, and stretch that to fill the entire 100% screen
+    .attr("preserveAspectRatio", "xMidYMid meet"); // Ensures that even if the browser window is stretched into a weird rectangle, your hexagons stay perfectly equilateral and centered (xMidYMid) rather than getting squashed
 
-  const mapGroup = svg.append("g")
-    .attr("id", "map-group")
-    .attr("transform", "translate(45, 45)"); // Starting offset
+  const mapGroup = svg.append("g") // Creates a "Group" element. Think of this like a transparent folder or layer in Photoshop
+    .attr("id", "map-group") // Gives it a name so you can easily find it later (useful for applying zoom or CSS filters)
+    .attr("transform", "translate(45, 45)"); // Starting Offset. It moves the entire map M units to the right and N units down
 
 
   // DEFINE PAN AND ZOOM BEHAVIOR
@@ -78,14 +80,14 @@ function d3Setup() {
 function renderAllHexes() {
 
   // Render all hexes
-  AppState.mapGroup.selectAll("polygon.hex-tile")
-    .data(Array.from(AppState.grid))
-    .enter()
-    .append("polygon")
+  AppState.mapGroup.selectAll("polygon.hex-tile") // D3 looks inside your group (<g>) for any existing polygons with the class hex-tile. Even if there aren't any yet, this creates an "empty selection" that D3 will use as a template for what needs to be created
+    .data(Array.from(AppState.grid)) // D3 "joins" your array of Hex objects to the selection above. It calculates: "I have 100 data points, but 0 polygons. Therefore, I need to create 100 new elements."
+    .enter() // This targets the "placeholder" spots for all data points that don't have a matching polygon yet.
+    .append("polygon") // For every single hex in your grid array, D3 creates a new <polygon> element in the DOM.
     .attr("class", "hex-tile")
-    .attr("points", (hex) => hex.corners.map(c => `${c.x},${c.y}`).join(" "))
+    .attr("points", (hex) => hex.corners.map(c => `${c.x},${c.y}`).join(" ")) // This is how SVGs define polygons. It needs a string of coordinates like "x1,y1 x2,y2...". The Function: For each hex, D3 takes its corners (calculated by Honeycomb), grabs the x and y of each corner, and joins them into a long string that tells the browser exactly where to draw the six points of the hexagon.
     .style("fill", (hex) => hex.fillColor)
-    .style("stroke", (hex) => hex.strokeColor)
+    .style("stroke", (hex) => "#aaa")
     .style("stroke-width", "1.5px")
     .on("click", hexClickHandler);
 }
@@ -139,7 +141,6 @@ function pickrSetup() {
     }
   });
 
-  // Example of how to use the selected color
   AppState.colorPicker.on('change', (color, instance) => {
     setBrushColor(color.toHEXA().toString());
     // brushColor = color.toHEXA().toString();
