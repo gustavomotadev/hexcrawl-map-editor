@@ -3,16 +3,8 @@ import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
 import pickr from "https://cdn.jsdelivr.net/npm/@simonwep/pickr/+esm";
 
 document.addEventListener("DOMContentLoaded", () => {
-  // console.debug("✅ D3.js and Honeycomb loaded successfully as ES Modules.");
 
-  // 1. Configure the grid
-  const HexClass = honeycomb.defineHex({ dimensions: 30, orientation: "flat" });
-  const grid = new honeycomb.Grid(HexClass, honeycomb.rectangle({ width: 30, height: 20 }));
-  // console.debug(grid);
-
-  grid.forEach(hex => {
-    hex.fillColor = "#000000"; // Set a default starting color
-  });
+  const grid = createGrid(30, 20, honeycomb.Orientation.FLAT);
 
   quickLoad(grid);
 
@@ -55,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
     .attr("class", "hex-tile")
     .attr("points", (hex) => hex.corners.map(c => `${c.x},${c.y}`).join(" "))
     .style("fill", (hex) => hex.fillColor)
-    .style("stroke", "#aaaaaa")
+    .style("stroke", (hex) => hex.strokeColor)
     .style("stroke-width", "1.5px")
     .on("click", function (event, hex) {
 
@@ -76,7 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
         quickSave(grid);
       }
 
-      // console.debug(`Hex clicked: q=${hex.q}, r=${hex.r}`);
+      console.debug(`Hex clicked: q=${hex.q}, r=${hex.r}`);
     });
 
   // console.debug(`Grid rendered. Use mouse wheel, click + drag, or pinch gestures to zoom and pan!`);
@@ -160,6 +152,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
+function createGrid(hexWidth, hexHeight, hexOrientation, hexDimension=30, hexFillColor="#000", hexStrokeColor="#aaa") {
+
+  const HexClass = honeycomb.defineHex({ dimensions: hexDimension, orientation: hexOrientation });
+
+
+  //
+  const testHex = new HexClass();
+  console.log("Orientation:", testHex.orientation); 
+  console.log("Corners:", testHex.corners);
+  console.log("Width:", testHex.width, "Height:", testHex.height);
+  //
+
+
+  const grid = new honeycomb.Grid(HexClass, honeycomb.rectangle({ width: hexWidth, height: hexHeight }));
+
+  grid.forEach(hex => {
+    hex.fillColor = hexFillColor; // Set a default fill color
+    hex.strokeColor = hexStrokeColor; // Set a default stroke color
+  });
+
+  return grid
+}
+
 function toggleButton(buttonId) {
 
   const button = document.getElementById(buttonId);
@@ -169,13 +184,29 @@ function toggleButton(buttonId) {
   button.classList.toggle("border-light");
 }
 
+function compareColor(color1, color2) {
+
+  const c1 = d3.color(color1);
+  const c2 = d3.color(color2);
+    
+  // If the string is invalid, d3.color returns null
+  if (!c1 || !c2) throw new Error("Invalid color comparison."); 
+  
+  // Check if all channels are equal
+  return c1.r === c2.r && c1.g === c2.g && c1.b === c2.b;
+}
+
 function quickSave(grid) {
 
   const fullMapData = Array.from(grid).map(hex => ({ q: hex.q, r: hex.r, color: hex.fillColor }));
 
-  const filteredMapData = fullMapData.filter((hex) => (hex.color !== "#000000"));
+  const filteredMapData = fullMapData.filter((hex) => (!compareColor(hex.color, "#000")));
 
-  let saveData = { palette: [], hexes: {} };
+  const gridOrientation = Array.from(grid)[0].orientation;
+
+  console.debug('here: ', gridOrientation);
+
+  let saveData = { orientation: gridOrientation, palette: [], hexes: {} };
 
   filteredMapData.forEach(hex => {
 
@@ -201,6 +232,11 @@ function quickLoad(grid) {
 
   const quickSaveObject = JSON.parse(quickSaveJSON);
 
+  const currentOrientation = Array.from(grid)[0].orientation;
+  if (currentOrientation !== quickSaveObject.orientation) {
+    return false;
+  }
+
   for (const [qr, colorIndex] of Object.entries(quickSaveObject.hexes)) {
 
     const qrArray = qr.split(',');
@@ -209,6 +245,7 @@ function quickLoad(grid) {
     const r = Number(qrArray[1]);
     const color = quickSaveObject.palette[colorIndex];
 
+    console.debug(q, r);
     const targetHex = grid.getHex([q, r]);
 
     // console.debug(color);
